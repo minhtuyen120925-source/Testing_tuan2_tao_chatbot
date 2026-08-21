@@ -19,12 +19,14 @@ export function Hero() {
           <Button
             size="lg"
             nativeButton={false}
+            className="bg-blue-600 text-white shadow-sm shadow-black/10 hover:bg-blue-700"
             render={<Link href="#bao-gia">Nhận báo giá ngay</Link>}
           />
           <Button
             variant="outline"
             size="lg"
             nativeButton={false}
+            className="bg-blue-50 text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100"
             render={<Link href="/portal">Vào cổng hồ sơ</Link>}
           />
         </div>
