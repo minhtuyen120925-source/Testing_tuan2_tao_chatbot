@@ -21,12 +21,15 @@ export default async function AdminConversationDetailPage({
   const { id } = await params;
   const supabaseAdmin = getSupabaseAdmin();
 
-  const { data: conversation } = await supabaseAdmin
+  const { data: conversation, error } = await supabaseAdmin
     .from("conversations")
     .select("id, channel, started_at")
     .eq("id", id)
     .maybeSingle();
 
+  if (error) {
+    throw new Error(`Không tải được dữ liệu từ Supabase: ${error.message}`);
+  }
   if (!conversation) notFound();
 
   const { data: messages } = await supabaseAdmin

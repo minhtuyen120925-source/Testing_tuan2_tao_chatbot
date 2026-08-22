@@ -11,10 +11,10 @@ interface Message {
 }
 
 const quickQuestions = [
-  "Chi phí dịch vụ là bao nhiêu?",
-  "Tôi chưa có bằng IELTS thì có đăng ký được không?",
-  "Làm sao biết mình đủ điều kiện vào trường nào?",
-  "Hồ sơ của tôi có được bảo mật không?",
+  "Mình muốn tìm hiểu về du học",
+  "Tư vấn giúp mình chọn trường và ngành học",
+  "Mình muốn tìm học bổng du học",
+  "Mình muốn đặt lịch tư vấn miễn phí",
 ];
 
 const greeting: Message = {

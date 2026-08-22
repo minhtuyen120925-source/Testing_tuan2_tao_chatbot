@@ -21,7 +21,7 @@ function formatDateTime(iso: string) {
 
 export default async function AdminConversationsPage() {
   const supabaseAdmin = getSupabaseAdmin();
-  const { data: conversations } = await supabaseAdmin
+  const { data: conversations, error } = await supabaseAdmin
     .from("conversations")
     .select("id, channel, started_at, messages(content, sender, created_at)")
     .order("started_at", { ascending: false })
@@ -33,6 +33,12 @@ export default async function AdminConversationsPage() {
         title="Hội thoại"
         description="Lịch sử hội thoại của khách với chatbot hỏi đáp trên trang chủ."
       />
+
+      {error && (
+        <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          Không tải được dữ liệu từ Supabase: {error.message}
+        </div>
+      )}
 
       <Card>
         <Table>
