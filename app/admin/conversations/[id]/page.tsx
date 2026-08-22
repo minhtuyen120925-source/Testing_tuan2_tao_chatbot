@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/page-header";
+import { ExtractLeadButton } from "@/components/admin/extract-lead-button";
 import { Card } from "@/components/ui/card";
+import { LeadQualityBadge } from "@/components/status-badge";
 import { cn } from "@/lib/utils";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
@@ -11,6 +13,15 @@ function formatDateTime(iso: string) {
     dateStyle: "short",
     timeStyle: "short",
   });
+}
+
+function LeadField({ label, value }: { label: string; value: string | null }) {
+  return (
+    <div>
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="text-sm">{value || <span className="text-muted-foreground">—</span>}</dd>
+    </div>
+  );
 }
 
 export default async function AdminConversationDetailPage({
@@ -38,6 +49,14 @@ export default async function AdminConversationDetailPage({
     .eq("conversation_id", id)
     .order("created_at", { ascending: true });
 
+  const { data: lead } = await supabaseAdmin
+    .from("leads")
+    .select(
+      "full_name, email, phone, destination_country, study_level, major, scholarship, availability, has_booked_consultation, notes, lead_quality, extracted_at",
+    )
+    .eq("conversation_id", id)
+    .maybeSingle();
+
   return (
     <>
       <AdminPageHeader
@@ -53,6 +72,48 @@ export default async function AdminConversationDetailPage({
           </Link>
         }
       />
+
+      <Card className="mb-6 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="font-medium">Thông tin lead</h2>
+              {lead && <LeadQualityBadge quality={lead.lead_quality} />}
+            </div>
+            {lead && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Trích xuất lúc {formatDateTime(lead.extracted_at)}
+              </p>
+            )}
+          </div>
+          <ExtractLeadButton conversationId={id} hasLead={!!lead} />
+        </div>
+
+        {lead ? (
+          <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+            <LeadField label="Họ tên" value={lead.full_name} />
+            <LeadField label="Email" value={lead.email} />
+            <LeadField label="Số điện thoại" value={lead.phone} />
+            <LeadField label="Quốc gia du học" value={lead.destination_country} />
+            <LeadField label="Bậc học" value={lead.study_level} />
+            <LeadField label="Ngành học" value={lead.major} />
+            <LeadField label="Học bổng" value={lead.scholarship} />
+            <LeadField label="Availability" value={lead.availability} />
+            <LeadField
+              label="Đã đặt lịch tư vấn"
+              value={lead.has_booked_consultation ? "Có" : "Chưa"}
+            />
+            <div className="sm:col-span-2">
+              <LeadField label="Ghi chú" value={lead.notes} />
+            </div>
+          </dl>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground">
+            Chưa có dữ liệu lead. Nhấn &quot;Trích xuất thông tin lead&quot; để dùng Gemini phân
+            tích hội thoại này.
+          </p>
+        )}
+      </Card>
 
       <Card className="space-y-3 p-4">
         {(messages ?? []).map((m) => (
